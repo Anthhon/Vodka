@@ -9,7 +9,16 @@
 
 void print_usage(char *program)
 {
-    fprintf(stdout, "Usage: %s (command)\n", program);
+    fprintf(stdout, "Usage: %s [options]\n", program);
+    fprintf(stdout, "\nOptions:\n");
+    fprintf(stdout, "  %s\t\t\tRun the server\n", FLAG_RUN);
+    fprintf(stdout, "  %s\t\t\tDisplay this help message\n", FLAG_HELP);
+    fprintf(stdout, "\n");
+    fprintf(stdout, "Example:\n");
+    fprintf(stdout, "  %s %s\n", program, FLAG_RUN);
+    fprintf(stdout, "  %s %s\n", program, FLAG_HELP);
+    fprintf(stdout, "\n");
+    fprintf(stdout, "For more information, visit: https://github.com/Anthhon/Vodka\n");
     exit(EXIT_SUCCESS);
 }
 
