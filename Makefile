@@ -5,7 +5,7 @@ FLAGS=-Wall -Werror -Wextra -pedantic
 LIBS=
 
 SRC_PATH=src
-BUILD_PATH=build
+BUILD_PATH=.
 EXECUTABLE=Vodka
 
 run:
@@ -13,7 +13,7 @@ run:
 
 clean:
 	@echo "[!] Removing content from `$(BUILD_PATH)`"
-	rm -i $(BUILD_PATH)/*
+	rm -i $(BUILD_PATH)/$(EXECUTABLE)
 
 build-linux:
 	@echo "[+] Checking build folder existence..."

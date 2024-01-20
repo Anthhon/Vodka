@@ -1,58 +1,79 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
+#include <signal.h>
 #include <time.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include "server.h"
+#include "config.h"
 #include "templates.h"
+#include "urls.h"
 
 //#define DEBUG
 #include "main.h"
 
-ServerInfo server_info = {
-    .port = DEFAULT_PORT,
-    .server_addr = {0},
-    .client_addr = {0},
-    .client_len = sizeof(server_info.client_addr),
-};
+void handle_shutdown()
+{
+    if (close(server_info.server_socket) == -1) {
+        LogExit("Could not close server properly.\n");
+    }
+    LogInfo("Shutting down server...\n");
+    exit(EXIT_SUCCESS);
+}
 
-void handle_request() {
-    char *page = NULL;
+void handle_request(void)
+{
+    char received_request[2048] = {0};
+    ssize_t received_bytes = recv(server_info.client_socket, received_request, sizeof(received_request) - 1, 0);
+    if (received_bytes <= 0) {
+        LogError("Error receiving request from client.\n");
+        return;
+    }
+
+    _Debug({
+            LogDebug("Received request {\n%s.\n}\n", received_request);
+            });
+
+    char *page_content = NULL;
+    const char *page_path = "/index.html";
     const char *response_template = "HTTP/1.1 200 OK\r\n"
-                                    "Content-Type: text/html\r\n"
-                                    "Content-Length: %lu\r\n"
-                                    "\r\n%s";
+        "Content-Type: text/html\r\n"
+        "Content-Length: %lu\r\n"
+        "\r\n%s";
 
-    char temp_index_file_path[] = "/home/anthony/Programming/personal/vodka/templates/index.html";
-    page = read_files(temp_index_file_path);
+    _Debug({
+            LogDebug("Page filename: \"%s\".\n", page_path);
+            });
 
-    if (page != NULL) {
+    page_content = read_files(page_path);
+
+    if (page_content != NULL) {
         // 32 is used to make a room for the '%lu' placeholder
-        char response[strlen(response_template) + strlen(page) + 32]; 
+        char response[strlen(response_template) + strlen(page_content) + 32]; 
+        memset(response, 0, sizeof(response));
 
-        if (snprintf(response, sizeof(response), response_template, strlen(page), page) < 0) {
+        if (snprintf(response, sizeof(response),
+                    response_template, strlen(page_content),
+                    page_content) < 0) {
             LogError("Could not write response content.\n");
+            return;
         }
 
-        if (send(server_info.client_socket, response, strlen(response), 0) == -1) {
+        if (send(server_info.client_socket, response,
+                    strlen(response), 0) == -1) {
             LogError("Could not send response to client.\n");
+            return;
         }
 
-        free(page);
-        page = NULL;
+        free(page_content);
+        page_content = NULL;
     }
 
     if (close(server_info.client_socket)) {
         LogError("Could not close client socket properly.\n");
-    }
-}
-
-void server_close(void)
-{
-    if (close(server_info.server_socket) == -1) {
-        LogExit("Could not close server properly.\n");
     }
 }
 
@@ -81,13 +102,19 @@ int server_init(void)
     return server_info.server_socket;
 }
 
-int server_run(void)
+int server_run()
 {
+    signal(SIGINT, handle_shutdown);
+
     LogInfo("Server starting...\n");
     server_init();
 
+    LogInfo("Setting urls...\n");
+    urls_set();
+
     LogInfo("Server is running!\n");
     LogInfo("Visit http://localhost:%i in your web browser to see your server.\n", server_info.port);
+    LogInfo("Press <CTRL+C> to close server.\n");
 
     while (1) {
         server_info.client_socket = accept(server_info.server_socket, \
@@ -111,11 +138,13 @@ int server_run(void)
         strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", info);
         LogInfo("[%s] REQUEST FROM %s:%d\n", timestamp, client_ip, ntohs(server_info.client_addr.sin_port));
 
-        // TODO: Implement thread pool to handle connections
+        // TODO: Implement multi-threading to handle connections
         handle_request();
     }
 
-    server_close();
+    if (close(server_info.server_socket) == -1) {
+        LogExit("Could not close server properly.\n");
+    }
 
     return 0;
 }
