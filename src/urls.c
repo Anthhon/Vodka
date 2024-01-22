@@ -1,24 +1,49 @@
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "config.h"
 #include "urls.h"
 
-//#define DEBUG
+#define DEBUG
 #include "main.h"
 
-void urls_set(void)
+void print_urls(UrlsManager *urls_manager)
+{
+    for (size_t i = 0; i < urls_manager->capacity; ++i) {
+        LogDebug("\'%s\' added at the address \'%s\' (%li token)\n", urls_manager->urls[i].file_path, urls_manager->urls[i].url, i + 1);
+    }
+}
+
+void urls_set(UrlsManager *urls_manager)
 {
     // Set project urls here
-    url_push(&urls_manager, "/", "index", "index.html");
+    url_push(urls_manager, "/home", "index", "/index.html");
+    url_push(urls_manager, "/info", "extrainfo", "/other.html");
 
-    // Free urls
-    free(urls_manager.urls);
-    urls_manager.urls = NULL;
+    _Debug({
+            print_urls(urls_manager);
+    });
+}
+
+size_t url_exist(const UrlsManager *urls_manager, const char *url)
+{
+    if (urls_manager->urls == NULL) { return SIZE_MAX; }
+
+    for (size_t i = 0; i < urls_manager->capacity; ++i) {
+        if (strcmp(urls_manager->urls[i].url, url) == 0) {
+            return i;
+        }
+    }
+
+    return SIZE_MAX;
 }
 
 void url_push(UrlsManager *urls_manager, char *url_obj, char *name_obj, char *file_path_obj)
 {
-    urls_manager->urls = realloc(urls_manager->urls, (sizeof(*urls_manager->urls) * urls_manager->capacity++));
+    ++urls_manager->capacity;
+
+    urls_manager->urls = realloc(urls_manager->urls, (sizeof(UrlObject) * urls_manager->capacity));
     if (urls_manager->urls == NULL) {
         LogExit("Could not allocate memory to store new url object.\n");
         return;
@@ -30,11 +55,5 @@ void url_push(UrlsManager *urls_manager, char *url_obj, char *name_obj, char *fi
         .file_path = file_path_obj,
     };
 
-    memcpy(&urls_manager->urls[urls_manager->capacity - 1], &new_url, sizeof(*urls_manager->urls));
-
-    _Debug({
-            LogDebug("UrlObj added (url: \"%s\", name: \"%s\", file_path: \"%s\").\n", new_url.url, new_url.name, new_url.file_path);
-    });
-
-    return;
+    memcpy(&(urls_manager->urls[urls_manager->capacity - 1]), &new_url, sizeof(UrlObject));
 }

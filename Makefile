@@ -6,7 +6,7 @@ LIBS=
 
 SRC_PATH=src
 BUILD_PATH=.
-EXECUTABLE=Vodka
+EXECUTABLE=vodka
 
 run:
 	./$(BUILD_PATH)/$(EXECUTABLE)

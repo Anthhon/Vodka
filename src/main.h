@@ -19,6 +19,7 @@
 #define LogExit(...) fprintf(stderr, "[!] "); \
     fprintf(stderr, __VA_ARGS__); \
     exit(EXIT_FAILURE)
+#define UNUSED(expr) (void)(expr);
 
 #ifdef DEBUG
 #define _Debug(code) \

@@ -7,9 +7,9 @@
 UrlsManager urls_manager = {0};
 
 // Project settings
-const uint16_t SERVER_PORT = 8080;
+const uint16_t SERVER_PORT = 8888;
 const char ROOT_PATH[] = "/home/anthony/Programming/personal/vodka";
-const char TEMPLATES_PATH[] = "/templates";
+const char TEMPLATES_PATH[] = "/static";
 const char REQUEST_KEYWORD_GET[] = "GET";
 const char REQUEST_KEYWORD_POST[] = "POST";
 

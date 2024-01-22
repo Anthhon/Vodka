@@ -38,15 +38,17 @@ int main(int argc, char *argv[])
     char *program = argv[0];
 
     print_banner();
-    for (uint16_t i = 1; i <= argc; ++i) {
+    for (uint16_t i = 1; i < argc; ++i) {
         _Debug({
                 LogDebug("Checking argument: \"%s\"\n", argv[i]);
         });
         if (strncmp(FLAG_RUN, argv[i], FLAG_RUN_L) == 0) {
-            return server_run();
+            server_run();
+            break;
         }
         if (strncmp(FLAG_HELP, argv[i], FLAG_HELP_L) == 0) {
             print_usage(program);
+            break;
         }
     }
 

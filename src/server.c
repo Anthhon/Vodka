@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -9,47 +10,49 @@
 #include <sys/socket.h>
 #include "server.h"
 #include "config.h"
-#include "templates.h"
 #include "urls.h"
+#include "templates.h"
+#include "requests.h"
 
-//#define DEBUG
+#define DEBUG
 #include "main.h"
 
-void handle_shutdown()
-{
+static volatile bool server_running = true;
+static const char *response_template = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %lu\r\n\r\n%s";
+
+void handle_shutdown(int sig) {
+    UNUSED(sig);
+
+    LogInfo("Received SIGINT. Shutting down...\n");
+    server_running = false;
+
     if (close(server_info.server_socket) == -1) {
         LogExit("Could not close server properly.\n");
     }
-    LogInfo("Shutting down server...\n");
+    free(urls_manager.urls);
+    urls_manager.urls = NULL;
+
     exit(EXIT_SUCCESS);
 }
 
 void handle_request(void)
 {
-    char received_request[2048] = {0};
-    ssize_t received_bytes = recv(server_info.client_socket, received_request, sizeof(received_request) - 1, 0);
+    char request_received[2048] = {0};
+    ssize_t received_bytes = recv(server_info.client_socket, request_received, sizeof(request_received) - 1, 0);
     if (received_bytes <= 0) {
         LogError("Error receiving request from client.\n");
         return;
     }
 
-    _Debug({
-            LogDebug("Received request {\n%s.\n}\n", received_request);
-            });
+    HttpRequest *request_parsed = request_parse(request_received);
 
-    char *page_content = NULL;
-    const char *page_path = "/index.html";
-    const char *response_template = "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html\r\n"
-        "Content-Length: %lu\r\n"
-        "\r\n%s";
+    size_t url_id = url_exist(&urls_manager, request_parsed->path);
+    if (url_id == SIZE_MAX) {
+        LogError("Request URL '%s' does not exist or is not registered.\n", request_parsed->path);
+        return;
+    }
 
-    _Debug({
-            LogDebug("Page filename: \"%s\".\n", page_path);
-            });
-
-    page_content = read_files(page_path);
-
+    char *page_content = read_files(urls_manager.urls[url_id].file_path);
     if (page_content != NULL) {
         // 32 is used to make a room for the '%lu' placeholder
         char response[strlen(response_template) + strlen(page_content) + 32]; 
@@ -75,6 +78,11 @@ void handle_request(void)
     if (close(server_info.client_socket)) {
         LogError("Could not close client socket properly.\n");
     }
+
+    free(request_parsed->path);
+    request_parsed->path = NULL;
+    free(request_parsed);
+    request_parsed = NULL;
 }
 
 int server_init(void)
@@ -92,7 +100,7 @@ int server_init(void)
     if (bind(server_info.server_socket, \
                 (struct sockaddr *)&server_info.server_addr, \
                 sizeof(server_info.server_addr)) == -1) {
-        LogExit("Could not bind socket to address and port.\n");
+        LogExit("Could not bind socket to port \'%i\'.\n", server_info.port);
     }
 
     if (listen(server_info.server_socket, 5) == -1) {
@@ -102,7 +110,7 @@ int server_init(void)
     return server_info.server_socket;
 }
 
-int server_run()
+void server_run(void)
 {
     signal(SIGINT, handle_shutdown);
 
@@ -110,13 +118,13 @@ int server_run()
     server_init();
 
     LogInfo("Setting urls...\n");
-    urls_set();
+    urls_set(&urls_manager);
 
     LogInfo("Server is running!\n");
     LogInfo("Visit http://localhost:%i in your web browser to see your server.\n", server_info.port);
-    LogInfo("Press <CTRL+C> to close server.\n");
+    LogInfo("Press <CTRL+C> to close server.\n\n");
 
-    while (1) {
+    while (server_running) {
         server_info.client_socket = accept(server_info.server_socket, \
                 (struct sockaddr *)&server_info.client_addr, \
                 &server_info.client_len);
@@ -141,10 +149,4 @@ int server_run()
         // TODO: Implement multi-threading to handle connections
         handle_request();
     }
-
-    if (close(server_info.server_socket) == -1) {
-        LogExit("Could not close server properly.\n");
-    }
-
-    return 0;
 }

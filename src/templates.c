@@ -11,14 +11,13 @@
 char *build_full_path_from_filename(const char *filepath)
 {
     size_t buffer_s = strlen(ROOT_PATH) + strlen(TEMPLATES_PATH) + strlen(filepath) + 3;
-    char *buffer= malloc(buffer_s);
+    char *buffer= calloc(buffer_s, sizeof(*buffer));
     if (buffer == NULL) {
-        LogError("Could not allocate memory to \'%s\' file full path.\n", filepath);
+        LogError("Could not allocate memory to build \'%s\' file full path.\n", filepath);
         return NULL;
     }
 
     snprintf(buffer, buffer_s, "%s%s%s", ROOT_PATH, TEMPLATES_PATH, filepath);
-    buffer[buffer_s] = '\0';
 
     _Debug({
             LogDebug("Built full path: %s.\n", buffer);
@@ -38,6 +37,7 @@ char *read_files(const char *filepath)
     }
 
     FILE* file = fopen(full_filepath, "rb");
+
     if (!file) {
         LogError("Error opening \'%s\' template file.\n", full_filepath);
         return NULL;
@@ -53,8 +53,10 @@ char *read_files(const char *filepath)
     file_l = (size_t)fileSizeLong;
     rewind(file);
 
-    char* buffer = (char*)malloc(file_l + 1);
-    if (!buffer) {
+    free(full_filepath);
+
+    char *buffer = calloc(file_l + 1, sizeof(*buffer));
+    if (buffer == NULL) {
         LogError("Could not allocate more memory to template.\n");
         fclose(file);
         return NULL;
@@ -67,7 +69,6 @@ char *read_files(const char *filepath)
         fclose(file);
         return NULL;
     }
-    buffer[file_l] = '\0';
 
     _Debug({
         LogDebug("Read %li bytes from \'%s\'\n", bytesRead, full_filepath);

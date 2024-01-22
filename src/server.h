@@ -17,6 +17,6 @@ typedef struct {
 
 void handle_request(void);
 int server_init(void);
-int server_run(void);
+void server_run(void);
 
 #endif // SERVER_H
