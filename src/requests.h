@@ -21,6 +21,7 @@
 typedef enum {
     GET = 0,
     POST,
+    UNKNOWN, 
 } HttpMethod;
 
 typedef enum {

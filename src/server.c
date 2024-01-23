@@ -23,12 +23,13 @@ static const char *response_template = "HTTP/1.1 200 OK\r\nContent-Type: text/ht
 void handle_shutdown(int sig) {
     UNUSED(sig);
 
-    LogInfo("Received SIGINT. Shutting down...\n");
+    LogInfo("\rReceived SIGINT. Shutting down...\n");
     server_running = false;
 
     if (close(server_info.server_socket) == -1) {
         LogExit("Could not close server properly.\n");
     }
+
     free(urls_manager.urls);
     urls_manager.urls = NULL;
 
@@ -49,40 +50,34 @@ void handle_request(void)
     size_t url_id = url_exist(&urls_manager, request_parsed->path);
     if (url_id == SIZE_MAX) {
         LogError("Request URL '%s' does not exist or is not registered.\n", request_parsed->path);
-        return;
+    } else {
+        char *page_content = read_files(urls_manager.urls[url_id].file_path);
+        if (page_content != NULL) {
+            // 32 is used to make room for the '%lu' placeholder
+            char response[strlen(response_template) + strlen(page_content) + 32]; 
+            memset(response, 0, sizeof(response));
+
+            if (snprintf(response, sizeof(response),
+                        response_template, strlen(page_content),
+                        page_content) < 0) {
+                LogError("Could not write response content.\n");
+            } else {
+                if (send(server_info.client_socket, response,
+                            strlen(response), 0) == -1) {
+                    LogError("Could not send response to client.\n");
+                }
+            }
+
+            free(page_content);
+        }
     }
 
-    char *page_content = read_files(urls_manager.urls[url_id].file_path);
-    if (page_content != NULL) {
-        // 32 is used to make a room for the '%lu' placeholder
-        char response[strlen(response_template) + strlen(page_content) + 32]; 
-        memset(response, 0, sizeof(response));
-
-        if (snprintf(response, sizeof(response),
-                    response_template, strlen(page_content),
-                    page_content) < 0) {
-            LogError("Could not write response content.\n");
-            return;
-        }
-
-        if (send(server_info.client_socket, response,
-                    strlen(response), 0) == -1) {
-            LogError("Could not send response to client.\n");
-            return;
-        }
-
-        free(page_content);
-        page_content = NULL;
-    }
+    free(request_parsed->path);
+    free(request_parsed);
 
     if (close(server_info.client_socket)) {
         LogError("Could not close client socket properly.\n");
     }
-
-    free(request_parsed->path);
-    request_parsed->path = NULL;
-    free(request_parsed);
-    request_parsed = NULL;
 }
 
 int server_init(void)

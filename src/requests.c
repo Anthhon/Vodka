@@ -29,7 +29,10 @@ HttpRequest *request_parse(const char *request)
         request_token->method = POST;
     }
     else {
-
+        LogError("Request type not supported yet.\n");
+        free(request_token);
+        request_token = NULL;
+        return NULL;
     }
 
     char *path_str_pos = strstr(request, "/");
@@ -45,6 +48,7 @@ HttpRequest *request_parse(const char *request)
     if (request_token->path == NULL) {
         LogError("Could not allocate memory for the new request token path.\n");
         free(request_token);
+        request_token = NULL;
         return NULL;
     }
 

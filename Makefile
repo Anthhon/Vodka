@@ -26,7 +26,7 @@ debug-linux:
 	@echo "[+] Checking build folder existence..."
 	mkdir -p $(BUILD_PATH)
 	@echo "[+] Building project..."
-	$(CC) -o $(BUILD_PATH)/$(EXECUTABLE) $(SRC_PATH)/*.c $(LIBS) -g
+	$(CC) -o $(BUILD_PATH)/$(EXECUTABLE) $(SRC_PATH)/*.c $(LIBS) -g -fsanitize=address
 	@echo "[+] Project built successfully!"
 
 install-linux:
