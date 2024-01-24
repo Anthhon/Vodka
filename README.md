@@ -19,11 +19,14 @@ cd build
 # Roadmap
 
 - [X] Create boilerplate server code
+- [X] Allow user to customize URL's
 - [X] Handle GET requests
 - [ ] Handle POST requests
 - [ ] Handle DELETE requests
 - [ ] Handle OPTIONS requests
-- [ ] Server HTML files (IN PROGRESS, Need improvements)
+- [X] Handle HTML files
+- [X] Handle CSS files
+- [X] Handle JS files
 - [ ] Handle 404 errors
 
 # Contributing
