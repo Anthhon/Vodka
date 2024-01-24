@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "config.h"
+#include "requests.h"
 #include "server.h"
 #include "urls.h"
 
@@ -8,10 +9,13 @@ UrlsManager urls_manager = {0};
 
 // Project settings
 const uint16_t SERVER_PORT = 8181;
-const char ROOT_PATH[] = "/home/anthony/Programming/personal/vodka";
-const char TEMPLATES_PATH[] = "/static";
 const char REQUEST_KEYWORD_GET[] = "GET";
 const char REQUEST_KEYWORD_POST[] = "POST";
+
+const char ROOT_PATH[] = "/home/anthony/Programming/personal/vodka";
+const char TEMPLATES_PATH[] = "/static";
+char *PAGE_PATH_404 = "/404.html";
+char *PAGE_NAME_404 = "404";
 
 // Server info
 ServerInfo server_info = {

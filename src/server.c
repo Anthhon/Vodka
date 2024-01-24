@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -13,7 +14,7 @@
 #include "templates.h"
 #include "requests.h"
 
-//#define DEBUG
+#define DEBUG
 #include "main.h"
 
 static volatile bool server_running = true;
@@ -37,6 +38,19 @@ void handle_shutdown(int sig) {
     exit(EXIT_SUCCESS);
 }
 
+void handle_404(const char *request)
+{
+    size_t url_id = 0;
+    for (uint64_t i = 0; i < urls_manager.capacity; ++i) {
+        if (strcmp(urls_manager.urls[i].name, PAGE_NAME_404) == 0) {
+            url_id = i;
+            break;
+        }
+    }
+
+    get_content(request, url_id);
+}
+
 void handle_request(void)
 {
     char request_received[2048] = {0};
@@ -50,7 +64,8 @@ void handle_request(void)
 
     size_t url_id = url_exist(&urls_manager, request_parsed->path);
     if (url_id == SIZE_MAX) {
-        LogError("Request URL '%s' does not exist or is not registered.\n", request_parsed->path);
+        LogError("Redirecting user to 404. Page '%s' does not exist or is not registered.\n", request_parsed->path);
+        handle_404(request_received);
     } else {
         get_content(request_received, url_id);
     }

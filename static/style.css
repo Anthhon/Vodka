@@ -51,10 +51,14 @@ header > span, footer > span {
     display: flex;
     gap: 2rem;
 }
-footer a {
+footer a, footer p {
     margin: 2rem;
 }
-h1, h2, h3, h4, h5, h6, h7 {
+h1 {
+    font-size: 38px;
+    font-weight: 400;
+}
+h2, h3, h4, h5, h6, h7 {
     font-size: 28px;
     font-weight: 400;
 }

@@ -17,6 +17,7 @@ typedef struct {
 
 const char *get_header_by_type(const char *request);
 void handle_shutdown(int sig);
+void handle_404(const char *request);
 void handle_request(void);
 void get_content(const char *request, size_t url_id);
 void handle_request(void);

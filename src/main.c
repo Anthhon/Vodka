@@ -33,11 +33,11 @@ void print_banner(void)
 
 int main(int argc, char *argv[])
 {
+    print_banner();
     if (argc == 1) print_usage(argv[0]);
     
     char *program = argv[0];
 
-    print_banner();
     for (uint16_t i = 1; i < argc; ++i) {
         _Debug({
                 LogDebug("Checking argument: \"%s\"\n", argv[i]);

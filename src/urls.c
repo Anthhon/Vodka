@@ -10,15 +10,20 @@
 
 void urls_set(UrlsManager *urls_manager)
 {
+
     // Set project urls here
     url_push(urls_manager, "/home", "index", "/index.html");
     url_push(urls_manager, "/info", "extrainfo", "/other.html");
     url_push(urls_manager, "/style.css", "style", "/style.css");
     url_push(urls_manager, "/script.js", "script", "/script.js");
 
+    url_push(urls_manager, PAGE_PATH_404, PAGE_NAME_404, PAGE_PATH_404);
+
     _Debug({
             for (size_t i = 0; i < urls_manager->capacity; ++i) {
-            LogDebug("\'%s\' added at the address \'%s\' (%li token)\n", urls_manager->urls[i].file_path, urls_manager->urls[i].url, i + 1);
+                LogDebug("\'%s\' added at the address \'%s\' (%li token)\n", \
+                        urls_manager->urls[i].file_path, \
+                        urls_manager->urls[i].url, i + 1);
             }
     });
 }

@@ -5,7 +5,7 @@
 #include <string.h>
 #include "requests.h"
 
-//#define DEBUG
+#define DEBUG
 #include "main.h"
 
 const uint8_t GET_L = 3;
