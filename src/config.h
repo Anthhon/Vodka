@@ -8,6 +8,7 @@
 extern UrlsManager urls_manager;
 extern ServerInfo server_info;
 extern const uint16_t SERVER_PORT;
+extern const char TIMESTAMP_FORMAT[];
 extern const char REQUEST_KEYWORD_GET[];
 extern const char REQUEST_KEYWORD_POST[];
 extern const char ROOT_PATH[];

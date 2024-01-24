@@ -10,7 +10,6 @@
 
 void urls_set(UrlsManager *urls_manager)
 {
-
     // Set project urls here
     url_push(urls_manager, "/home", "index", "/index.html");
     url_push(urls_manager, "/info", "extrainfo", "/other.html");
@@ -26,19 +25,6 @@ void urls_set(UrlsManager *urls_manager)
                         urls_manager->urls[i].url, i + 1);
             }
     });
-}
-
-char *alloc_string(char *str)
-{
-    size_t str_l = strlen(str);
-    char *tmp_ptr = calloc(str_l + 1, sizeof(*str));
-    if (tmp_ptr == NULL) {
-        LogExit("Could not allocate memory to new string.\n");
-    }
-
-    strncpy(tmp_ptr, str, str_l);
-
-    return tmp_ptr;
 }
 
 size_t url_exist(const UrlsManager *urls_manager, const char *url)

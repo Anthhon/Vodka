@@ -14,7 +14,7 @@
 #include "templates.h"
 #include "requests.h"
 
-#define DEBUG
+//#define DEBUG
 #include "main.h"
 
 static volatile bool server_running = true;
@@ -22,7 +22,8 @@ static const char response_html[] = "HTTP/1.1 200 OK\r\nContent-Type: text/html\
 static const char response_css[] = "HTTP/1.1 200 OK\r\nContent-Type: text/css\r\nContent-Length: %lu\r\n\r\n%s";
 static const char response_js[] = "HTTP/1.1 200 OK\r\nContent-Type: application/javascript\r\nContent-Length: %lu\r\n\r\n%s";
 
-void handle_shutdown(int sig) {
+void handle_shutdown(int sig)
+{
     UNUSED(sig);
 
     LogInfo("\rReceived SIGINT. Shutting down...\n");
@@ -40,15 +41,12 @@ void handle_shutdown(int sig) {
 
 void handle_404(const char *request)
 {
-    size_t url_id = 0;
     for (uint64_t i = 0; i < urls_manager.capacity; ++i) {
         if (strcmp(urls_manager.urls[i].name, PAGE_NAME_404) == 0) {
-            url_id = i;
+            get_content(request, i);
             break;
         }
     }
-
-    get_content(request, url_id);
 }
 
 void handle_request(void)
@@ -76,6 +74,16 @@ void handle_request(void)
     if (close(server_info.client_socket)) {
         LogError("Could not close client socket properly.\n");
     }
+}
+
+void get_datetime(char *dest)
+{
+    time_t rawtime;
+    struct tm *info;
+
+    time(&rawtime);
+    info = localtime(&rawtime);
+    strftime(dest, sizeof(dest), TIMESTAMP_FORMAT, info);
 }
 
 const char *get_header_by_type(const char *request)
@@ -156,9 +164,7 @@ void server_run(void)
     LogInfo("Press <CTRL+C> to close server.\n\n");
 
     while (server_running) {
-        server_info.client_socket = accept(server_info.server_socket, \
-                (struct sockaddr *)&server_info.client_addr, \
-                &server_info.client_len);
+        server_info.client_socket = accept(server_info.server_socket, (struct sockaddr *)&server_info.client_addr, &server_info.client_len);
         if (server_info.client_socket == -1) {
             LogError("Error accepting client connection");
             continue;
@@ -167,14 +173,8 @@ void server_run(void)
         char client_ip[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &(server_info.client_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
 
-        time_t rawtime;
-        struct tm *info;
-        char timestamp[80];
-
-        time(&rawtime);
-        info = localtime(&rawtime);
-
-        strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", info);
+        char timestamp[80] = {0};
+        get_datetime(timestamp);
         LogInfo("[%s] REQUEST FROM %s:%d\n", timestamp, client_ip, ntohs(server_info.client_addr.sin_port));
 
         // TODO: Implement multi-threading to handle connections

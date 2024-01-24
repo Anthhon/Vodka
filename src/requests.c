@@ -5,7 +5,7 @@
 #include <string.h>
 #include "requests.h"
 
-#define DEBUG
+//#define DEBUG
 #include "main.h"
 
 const uint8_t GET_L = 3;
@@ -36,7 +36,7 @@ HttpRequest *request_parse(const char *request)
 {
     HttpRequest *request_token = calloc(1, sizeof(*request_token));
     if (request_token == NULL) {
-        LogError("Could not allocate memory to store HTTP request token.\n");
+        LogError("Could not allocate memory to store HTTP request object.\n");
         return NULL;
     }
 
@@ -53,6 +53,7 @@ HttpRequest *request_parse(const char *request)
         return NULL;
     }
 
+    // Parse path from request
     char *path_str_pos = strstr(request, "/");
     if (path_str_pos == NULL) {
         LogError("Could not find requested path.\n");

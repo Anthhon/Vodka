@@ -12,6 +12,8 @@ const uint16_t SERVER_PORT = 8181;
 const char REQUEST_KEYWORD_GET[] = "GET";
 const char REQUEST_KEYWORD_POST[] = "POST";
 
+const char TIMESTAMP_FORMAT[] = "%Y-%m-%d %H:%M:%S";
+
 const char ROOT_PATH[] = "/home/anthony/Programming/personal/vodka";
 const char TEMPLATES_PATH[] = "/static";
 char *PAGE_PATH_404 = "/404.html";
