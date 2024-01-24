@@ -3,46 +3,34 @@
     <head>
         <meta charset="UTF-8"/>
         <title>Vodka</title>
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="icon" type="image/x-icon" href="./favicon.png">
+        <meta name="viewport" content="width=device-width,initial-scale=1"/>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
     </head>
-    <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
-
-body {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-
-    font-family: "IBM Plex Mono", monospace;
-    background: #111;
-    color: #fff;
-
-    height: 100vh;
-    width: 100vw;
-
-    padding: 0;
-    margin: 0;
-}
-
-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-
-    padding: 0;
-    margin: 0;
-}
-
-pre, strong {
-    color: #ffdd33;
-}
-    </style>
     <body>
+        <header>
+            <h2><strong>Vodka</strong></h2>
+            <span>
+                <a href="/home">Homepage</a>
+                <a href="/info">Info</a>
+            </span>
+            <button type="button" onClick="changeColorMode()">Color mode</button>
+        </header>
         <section>
-            <h1>Extra info</h1>
-            <p>How to use <strong>Vodka.</strong></p>
+            <h3>Why <b>Vodka</b> does even exists?</h3>
+            <p>
+            I consider Vodka to be my <b>manifesto against the modern, inflated, and complacent market that has emerged in the field of web development.</b> In today's world, where companies exhibit an increasing urgency to release new web pages, products, and features at an ever-accelerating pace, it has become commonplace to encounter new products or frameworks that function as libraries, <b>shielding developers from truly understanding the intricacies beneath the surface.</b> This is often done in exchange for expediting development and facilitating the implementation of features.
+            <br>
+            <br>
+            Consequently, a multitude of frameworks, libraries, and methodologies are seemingly "discovered" or released on a monthly basis. While many find these developments convenient, enthusiasts in the realm of computing may find it somewhat disconcerting to <b>sacrifice knowledge and control in favor of such conveniences.</b>
+            <br>
+            <br>
+            <b>However, merely critiquing the industry and assigning blame without proposing viable solutions or taking concrete action is facile.</b> In response to this predicament, I have developed Vodka as a form of resistance. Vodka is designed to be user-friendly and convenient, yet it refrains from concealing complexities from the developer. All of this is achieved while leveraging the splendid speed and efficiency of the C language.
+            </p>
         </section>
+        <footer>
+            <a href="https://github.com/Anthhon/Vodka" target="_blank" rel="noopener noreferrer">Project github page</a>
+            <a href="/tutorial" target="_blank" rel="noopener noreferrer">Tutorial: Learning to use Vodka</a>
+        </footer>
+        <script src="script.js"></script>
     </body>
 </html>

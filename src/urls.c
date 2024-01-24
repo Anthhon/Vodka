@@ -5,14 +5,22 @@
 #include "config.h"
 #include "urls.h"
 
-#define DEBUG
+//#define DEBUG
 #include "main.h"
 
-void print_urls(UrlsManager *urls_manager)
+void urls_set(UrlsManager *urls_manager)
 {
-    for (size_t i = 0; i < urls_manager->capacity; ++i) {
-        LogDebug("\'%s\' added at the address \'%s\' (%li token)\n", urls_manager->urls[i].file_path, urls_manager->urls[i].url, i + 1);
-    }
+    // Set project urls here
+    url_push(urls_manager, "/home", "index", "/index.html");
+    url_push(urls_manager, "/info", "extrainfo", "/other.html");
+    url_push(urls_manager, "/style.css", "style", "/style.css");
+    url_push(urls_manager, "/script.js", "script", "/script.js");
+
+    _Debug({
+            for (size_t i = 0; i < urls_manager->capacity; ++i) {
+            LogDebug("\'%s\' added at the address \'%s\' (%li token)\n", urls_manager->urls[i].file_path, urls_manager->urls[i].url, i + 1);
+            }
+    });
 }
 
 char *alloc_string(char *str)
@@ -26,17 +34,6 @@ char *alloc_string(char *str)
     strncpy(tmp_ptr, str, str_l);
 
     return tmp_ptr;
-}
-
-void urls_set(UrlsManager *urls_manager)
-{
-    // Set project urls here
-    url_push(urls_manager, "/home", "index", "/index.html");
-    url_push(urls_manager, "/info", "extrainfo", "/other.html");
-
-    _Debug({
-            print_urls(urls_manager);
-    });
 }
 
 size_t url_exist(const UrlsManager *urls_manager, const char *url)

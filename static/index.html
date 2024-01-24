@@ -4,44 +4,19 @@
         <meta charset="UTF-8"/>
         <title>Vodka</title>
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="icon" type="image/x-icon" href="./favicon.png">
+        <link rel="stylesheet" type="text/css" href="style.css"/>
     </head>
-    <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
-
-body {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-
-    font-family: "IBM Plex Mono", monospace;
-    background: #111;
-    color: #fff;
-
-    height: 100vh;
-    width: 100vw;
-
-    padding: 0;
-    margin: 0;
-}
-
-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-
-    padding: 0;
-    margin: 0;
-}
-
-pre, strong {
-    color: #ffdd33;
-}
-    </style>
     <body>
+        <header>
+            <h2><strong>Vodka</strong></h2>
+            <span>
+                <a href="/home">Homepage</a>
+                <a href="/info">Info</a>
+            </span>
+            <button type="button" onClick="changeColorMode()">Color mode</button>
+        </header>
         <section>
-            <h1>Welcome to <strong>vodka!</strong></h1>
+            <h1>Welcome to</h1>
             <pre>
  ▌ ▐·      ·▄▄▄▄  ▄ •▄  ▄▄▄· 
 ▪█·█▌▪     ██▪ ██ █▌▄▌▪▐█ ▀█ 
@@ -49,7 +24,17 @@ pre, strong {
  ███ ▐█▌.▐▌██. ██ ▐█.█▌▐█ ▪▐▌
 . ▀   ▀█▄▀▪▀▀▀▀▀• ·▀  ▀ ▀  ▀ 
             </pre>
-            <p>Seems like someone knows how to even start this thing XD.</p>
+            <h4>The installation worked successfully. <b>Congratulations!</b></h4>
+            <p>
+            This is your initial default page. You can start your development process normally.
+            <br>
+            If you do not know how to use Vodka, check the tutorial link above.
+            </p>
         </section>
+        <footer>
+            <a href="https://github.com/Anthhon/Vodka" target="_blank" rel="noopener noreferrer">Project github page</a>
+            <a href="/tutorial" target="_blank" rel="noopener noreferrer">Tutorial: Learning to use Vodka</a>
+        </footer>
+        <script src="script.js"></script>
     </body>
 </html>

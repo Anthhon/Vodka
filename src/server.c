@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -14,11 +13,13 @@
 #include "templates.h"
 #include "requests.h"
 
-#define DEBUG
+//#define DEBUG
 #include "main.h"
 
 static volatile bool server_running = true;
-static const char *response_template = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %lu\r\n\r\n%s";
+static const char response_html[] = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %lu\r\n\r\n%s";
+static const char response_css[] = "HTTP/1.1 200 OK\r\nContent-Type: text/css\r\nContent-Length: %lu\r\n\r\n%s";
+static const char response_js[] = "HTTP/1.1 200 OK\r\nContent-Type: application/javascript\r\nContent-Length: %lu\r\n\r\n%s";
 
 void handle_shutdown(int sig) {
     UNUSED(sig);
@@ -51,25 +52,7 @@ void handle_request(void)
     if (url_id == SIZE_MAX) {
         LogError("Request URL '%s' does not exist or is not registered.\n", request_parsed->path);
     } else {
-        char *page_content = read_files(urls_manager.urls[url_id].file_path);
-        if (page_content != NULL) {
-            // 32 is used to make room for the '%lu' placeholder
-            char response[strlen(response_template) + strlen(page_content) + 32]; 
-            memset(response, 0, sizeof(response));
-
-            if (snprintf(response, sizeof(response),
-                        response_template, strlen(page_content),
-                        page_content) < 0) {
-                LogError("Could not write response content.\n");
-            } else {
-                if (send(server_info.client_socket, response,
-                            strlen(response), 0) == -1) {
-                    LogError("Could not send response to client.\n");
-                }
-            }
-
-            free(page_content);
-        }
+        get_content(request_received, url_id);
     }
 
     free(request_parsed->path);
@@ -77,6 +60,44 @@ void handle_request(void)
 
     if (close(server_info.client_socket)) {
         LogError("Could not close client socket properly.\n");
+    }
+}
+
+const char *get_header_by_type(const char *request)
+{
+    switch (request_get_type(request)) {
+        case HTML:
+            return response_html;
+        case CSS:
+            return response_css;
+        case JS:
+            return response_js;
+        default:
+            return NULL;
+    }
+}
+
+void get_content(const char *request, size_t url_id)
+{
+    const char *CONTENT_PLACEHOLDER = get_header_by_type(request);
+    char *page_content = read_files(urls_manager.urls[url_id].file_path);
+
+    if (page_content != NULL) {
+        // 32 is used to make room for the '%lu' placeholder
+        char response[strlen(CONTENT_PLACEHOLDER) + strlen(page_content) + 32]; 
+        memset(response, 0, sizeof(response));
+
+        if (snprintf(response, sizeof(response), CONTENT_PLACEHOLDER, strlen(page_content), page_content) < 0) {
+            LogError("Could not write response content.\n");
+            free(page_content);
+            return;
+        }
+        if (send(server_info.client_socket, response,
+                    strlen(response), 0) == -1) {
+            _Debug({ LogDebug("Response {\n%s\n}\n", response); });
+            LogError("Could not send response to client.\n");
+        }
+        free(page_content);
     }
 }
 

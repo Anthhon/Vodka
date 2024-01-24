@@ -16,7 +16,6 @@ typedef struct {
     uint64_t capacity;
 } UrlsManager;
 
-void print_urls(UrlsManager *urls_manager);
 void urls_set(UrlsManager *urls_manager);
 size_t url_exist(const UrlsManager *urls_manager, const char *url);
 void url_push(UrlsManager *urls_manager, char *url_obj, char *name_obj, char *file_path_obj);

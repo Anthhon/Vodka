@@ -19,21 +19,27 @@
 // Accept-Language: en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7
 
 typedef enum {
-    GET = 0,
-    POST,
-    UNKNOWN, 
-} HttpMethod;
-
-typedef enum {
     KEEP_ALIVE = 0,
     CLOSE,
 } ConnType;
+
+typedef enum {
+    HTML,
+    CSS,
+    JS,
+} RequestType;
+
+typedef enum {
+    GET = 0,
+    POST,
+} HttpMethod;
 
 typedef struct {
     HttpMethod method;
     char *path;
 } HttpRequest;
 
+RequestType request_get_type(const char *request);
 HttpRequest *request_parse(const char *request);
 
 #endif // REQUEST_H
