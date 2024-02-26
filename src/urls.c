@@ -11,11 +11,12 @@
 void urls_set(UrlsManager *urls_manager)
 {
     // Set project urls here
-    url_push(urls_manager, "/home", "index", "/index.html");
+    url_push(urls_manager, "/", "index", "/index.html");
     url_push(urls_manager, "/info", "extrainfo", "/other.html");
+
+    // Project default urls
     url_push(urls_manager, "/style.css", "style", "/style.css");
     url_push(urls_manager, "/script.js", "script", "/script.js");
-
     url_push(urls_manager, PAGE_PATH_404, PAGE_NAME_404, PAGE_PATH_404);
 
     _Debug({

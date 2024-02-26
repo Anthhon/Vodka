@@ -4,22 +4,24 @@
 #include "server.h"
 #include "urls.h"
 
-// Check 'urls.c' to see more about 'urls_manager'
-UrlsManager urls_manager = {0};
-
-// Project settings
-const uint16_t SERVER_PORT = 8181;
 const char REQUEST_KEYWORD_GET[] = "GET";
 const char REQUEST_KEYWORD_POST[] = "POST";
 
-const char TIMESTAMP_FORMAT[] = "%Y-%m-%d %H:%M:%S";
+// Check 'urls.c' to see more about 'urls_manager'
+UrlsManager urls_manager = {0};
 
-const char ROOT_PATH[] = "/home/anthony/Programming/personal/vodka";
-const char TEMPLATES_PATH[] = "/static";
-char *PAGE_PATH_404 = "/404.html";
-char *PAGE_NAME_404 = "404";
+// All project settings should be define in this file.
+// TODO: Implement reading of 'config' file to dinamically configure server
 
-// Server info
+const uint16_t SERVER_PORT = 8181; // Server port
+const char TIMESTAMP_FORMAT[] = "%Y-%m-%d %H:%M:%S"; // Timestamp to logs
+
+const char ROOT_PATH[] = "/home/anthony/Programming/personal/vodka"; // Project path
+const char TEMPLATES_PATH[] = "/static"; // Static files path
+
+char *PAGE_PATH_404 = "/404.html"; // 404 path
+char *PAGE_NAME_404 = "404"; // 404 page name
+
 ServerInfo server_info = {
     .server_socket = 0,
     .server_addr = {0},
