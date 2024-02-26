@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "config.h"
-#include "urls.h"
 #include "templates.h"
 
 //#define DEBUG
@@ -37,7 +36,6 @@ char *read_files(const char *filepath)
     }
 
     FILE* file = fopen(full_filepath, "rb");
-
     if (!file) {
         LogError("Error opening \'%s\' template file.\n", full_filepath);
         return NULL;
@@ -52,8 +50,6 @@ char *read_files(const char *filepath)
     }
     file_l = (size_t)fileSizeLong;
     rewind(file);
-
-    free(full_filepath);
 
     char *buffer = calloc(file_l + 1, sizeof(*buffer));
     if (buffer == NULL) {
@@ -75,6 +71,7 @@ char *read_files(const char *filepath)
     });
 
     fclose(file);
+    free(full_filepath);
 
     return buffer;
 }

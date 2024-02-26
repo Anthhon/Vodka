@@ -53,7 +53,6 @@ HttpRequest *request_parse(const char *request)
         return NULL;
     }
 
-    // Parse path from request
     char *path_str_pos = strstr(request, "/");
     if (path_str_pos == NULL) {
         LogError("Could not find requested path.\n");

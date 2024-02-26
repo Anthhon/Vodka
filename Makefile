@@ -2,7 +2,7 @@
 
 CC=gcc
 FLAGS=-Wall -Werror -Wextra -pedantic
-LIBS=
+LIBS= -lpthread
 
 SRC_PATH=src
 BUILD_PATH=.

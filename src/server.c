@@ -13,6 +13,7 @@
 #include "urls.h"
 #include "templates.h"
 #include "requests.h"
+#include "tasks.h"
 
 //#define DEBUG
 #include "main.h"
@@ -53,15 +54,16 @@ void handle_shutdown(int sig)
 void handle_404(const char *request)
 {
     for (uint64_t i = 0; i < urls_manager.capacity; ++i) {
-        if (strcmp(urls_manager.urls[i].name, PAGE_NAME_404) == 0) {
-            get_content(request, i);
+        if (strcmp(urls_manager.urls[i].name, PAGE_NAME_404) == 0) { get_content(request, i);
             break;
         }
     }
 }
 
-void handle_request(void)
+void handle_request(void *args)
 {
+    UNUSED(args);
+
     char new_request[2048] = {0};
     ssize_t received_bytes = recv(server_info.client_socket, new_request, sizeof(new_request) - 1, 0);
     if (received_bytes <= 0) {
@@ -156,6 +158,8 @@ int server_init(void)
 
 void server_run(void)
 {
+    thread_pool_t *thread_manager = thread_pool_create(num_threads);
+
     signal(SIGINT, handle_shutdown);
 
     LogInfo("Server starting...\n");
@@ -182,7 +186,8 @@ void server_run(void)
         get_datetime(timestamp);
         LogInfo("[%s] REQUEST FROM %s:%d\n", timestamp, client_ip, ntohs(server_info.client_addr.sin_port));
 
-        // TODO: Implement multi-threading to handle connections
-        handle_request();
+        thread_pool_add_work(thread_manager, handle_request, NULL);
     }
+    thread_pool_wait(thread_manager);
+    thread_pool_destroy(thread_manager);
 }

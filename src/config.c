@@ -8,6 +8,7 @@ const char REQUEST_KEYWORD_POST[] = "POST";
 
 // Check 'urls.c' to see more about 'urls_manager'
 UrlsManager urls_manager = {0};
+const size_t num_threads = 4; // Number of threads project should use
 
 // All project settings should be define in this file.
 // TODO: Implement reading of 'config' file to dinamically configure server

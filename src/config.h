@@ -15,5 +15,6 @@ extern const char ROOT_PATH[];
 extern const char TEMPLATES_PATH[];
 extern char *PAGE_PATH_404;
 extern char *PAGE_NAME_404;
+extern const size_t num_threads; // Number of threads project should use
 
 #endif // CONFIG_H
