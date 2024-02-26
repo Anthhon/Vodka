@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include "config.h"
-#include "requests.h"
 #include "server.h"
 #include "urls.h"
 
@@ -16,7 +15,7 @@ UrlsManager urls_manager = {0};
 const uint16_t SERVER_PORT = 8181; // Server port
 const char TIMESTAMP_FORMAT[] = "%Y-%m-%d %H:%M:%S"; // Timestamp to logs
 
-const char ROOT_PATH[] = "/home/anthony/Programming/personal/vodka"; // Project path
+const char ROOT_PATH[] = "/set/your/project/root/path/here"; // Project path
 const char TEMPLATES_PATH[] = "/static"; // Static files path
 
 char *PAGE_PATH_404 = "/404.html"; // 404 path
