@@ -34,20 +34,27 @@ void get_datetime(char *dest)
     strftime(dest, sizeof(dest), TIMESTAMP_FORMAT, info);
 }
 
+thread_pool_t *thread_pool_global_ptr = NULL;
 void handle_shutdown(int sig)
 {
     UNUSED(sig);
 
-    LogInfo("\rReceived SIGINT. Shutting down...\n");
+    LogInfo("Received SIGINT. Shutting down...\n");
     server_running = false;
 
     if (close(server_info.server_socket) == -1) {
         LogExit("Could not close server properly.\n");
     }
 
+    LogInfo("Freed URL info...\n");
     free(urls_manager.urls);
     urls_manager.urls = NULL;
 
+    LogInfo("Shutting threads down...\n");
+    thread_pool_wait(thread_pool_global_ptr);
+    thread_pool_destroy(thread_pool_global_ptr);
+
+    LogInfo("Exiting...\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -60,10 +67,13 @@ void handle_404(const char *request)
     }
 }
 
-void handle_request(void *args)
-{
+void handle_request_wrapper(void *args) {
     UNUSED(args);
+    handle_request();
+}
 
+void handle_request(void)
+{
     char new_request[2048] = {0};
     ssize_t received_bytes = recv(server_info.client_socket, new_request, sizeof(new_request) - 1, 0);
     if (received_bytes <= 0) {
@@ -158,12 +168,14 @@ int server_init(void)
 
 void server_run(void)
 {
-    thread_pool_t *thread_manager = thread_pool_create(num_threads);
-
     signal(SIGINT, handle_shutdown);
 
     LogInfo("Server starting...\n");
     server_init();
+
+    LogInfo("Initializing server multi-threading...\n");
+    thread_pool_t *thread_pool = thread_pool_create(num_threads);
+    thread_pool_global_ptr = thread_pool;
 
     LogInfo("Setting urls...\n");
     urls_set(&urls_manager);
@@ -186,8 +198,8 @@ void server_run(void)
         get_datetime(timestamp);
         LogInfo("[%s] REQUEST FROM %s:%d\n", timestamp, client_ip, ntohs(server_info.client_addr.sin_port));
 
-        thread_pool_add_work(thread_manager, handle_request, NULL);
+        thread_pool_add_work(thread_pool, handle_request_wrapper, NULL);
     }
-    thread_pool_wait(thread_manager);
-    thread_pool_destroy(thread_manager);
+    thread_pool_wait(thread_pool);
+    thread_pool_destroy(thread_pool);
 }
