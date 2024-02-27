@@ -21,7 +21,7 @@
     exit(EXIT_FAILURE)
 #define UNUSED(expr) (void)(expr);
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #define _Debug(code) \
     do { \

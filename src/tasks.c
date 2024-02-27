@@ -12,7 +12,7 @@ static thread_pool_work_t *thread_pool_work_create(thread_func_t func, void *arg
 {
     if (func == NULL) { return NULL; }
 
-    _Debug({ LogDebug("Creating work in thread: %li\n", pthread_self()); });
+    _Debug({ LogDebug("Creating work (thread: %lu)\n", pthread_self()); });
 
     thread_pool_work_t *work = malloc(sizeof(*work));
     work->func = func;
@@ -25,7 +25,7 @@ static void thread_pool_work_destroy(thread_pool_work_t *work)
 {
     if (work == NULL) { return; }
 
-    _Debug({ LogDebug("Destroying pool work %li\n", (size_t)work); });
+    _Debug({ LogDebug("Destroying pool work (thread %lu)\n", pthread_self()); });
 
     free(work);
     work = NULL;
@@ -149,7 +149,7 @@ bool thread_pool_add_work(thread_pool_t *tm, thread_func_t func, void *arg)
         return false;
     }
 
-    _Debug({ LogDebug("Adding work (thread %li)\n", pthread_self()); });
+    _Debug({ LogDebug("Adding work (thread %lu)\n", pthread_self()); });
     
     thread_pool_work_t *work = NULL;
     if ((work = thread_pool_work_create(func, arg)) == NULL) {

@@ -1,3 +1,4 @@
+#include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,24 +59,21 @@ void handle_shutdown(int sig)
     exit(EXIT_SUCCESS);
 }
 
-void handle_404(const char *request)
+void handle_404(const char *request, int *client_socket)
 {
     for (uint64_t i = 0; i < urls_manager.capacity; ++i) {
-        if (strcmp(urls_manager.urls[i].name, PAGE_NAME_404) == 0) { get_content(request, i);
+        if (strcmp(urls_manager.urls[i].name, PAGE_NAME_404) == 0) { 
+            get_content(request, client_socket, i);
             break;
         }
     }
 }
 
-void handle_request_wrapper(void *args) {
-    UNUSED(args);
-    handle_request();
-}
-
-void handle_request(void)
+void handle_request(void *client_socket)
 {
     char new_request[2048] = {0};
-    ssize_t received_bytes = recv(server_info.client_socket, new_request, sizeof(new_request) - 1, 0);
+    int new_socket = *((int*) client_socket);
+    ssize_t received_bytes = recv(new_socket, new_request, sizeof(new_request) - 1, 0);
     if (received_bytes <= 0) {
         LogError("Error receiving request from client.\n");
         return;
@@ -84,22 +82,23 @@ void handle_request(void)
     HttpRequest *request_parsed = request_parse(new_request);
     if (request_parsed == NULL) {
         LogError("Not returning any content\n");
-        handle_404(new_request);
+        handle_404(new_request, &new_socket);
         return;
     }
 
     size_t url_id = url_exist(&urls_manager, request_parsed->path);
     if (url_id == SIZE_MAX) {
         LogError("Redirecting user to 404. Page '%s' does not exist or is not registered.\n", request_parsed->path);
-        handle_404(new_request);
+        handle_404(new_request, &new_socket);
     } else {
-        get_content(new_request, url_id);
+        get_content(new_request, &new_socket, url_id);
     }
 
+    free(client_socket);
     free(request_parsed->path);
     free(request_parsed);
 
-    if (close(server_info.client_socket)) {
+    if (close(new_socket)) {
         LogError("Could not close client socket properly.\n");
     }
 }
@@ -108,17 +107,20 @@ const char *get_header_by_type(const char *request)
 {
     switch (request_get_type(request)) {
         case HTML:
+            _Debug({ LogDebug("Returning HTML content (thread %lu)\n", pthread_self()); });
             return response_html;
         case CSS:
+            _Debug({ LogDebug("Returning CSS content (thread %lu)\n", pthread_self()); });
             return response_css;
         case JS:
+            _Debug({ LogDebug("Returning JS content (thread %lu)\n", pthread_self()); });
             return response_js;
         default:
             return NULL;
     }
 }
 
-void get_content(const char *request, size_t url_id)
+void get_content(const char *request, int *client_socket, size_t url_id)
 {
     const char *CONTENT_PLACEHOLDER = get_header_by_type(request);
     char *page_content = read_files(urls_manager.urls[url_id].file_path);
@@ -133,8 +135,7 @@ void get_content(const char *request, size_t url_id)
             free(page_content);
             return;
         }
-        if (send(server_info.client_socket, response, strlen(response), 0) == -1) {
-            _Debug({ LogDebug("Response {\n%s\n}\n", response); });
+        if (send(*client_socket, response, strlen(response), 0) == -1) {
             LogError("Could not send response to client.\n");
         }
         free(page_content);
@@ -185,9 +186,10 @@ void server_run(void)
     LogInfo("Press <CTRL+C> to close server.\n\n");
 
     while (server_running) {
-        server_info.client_socket = accept(server_info.server_socket, (struct sockaddr *)&server_info.client_addr, &server_info.client_len);
-        if (server_info.client_socket == -1) {
-            LogError("Error accepting client connection");
+        int *new_socket = malloc(sizeof(*new_socket));
+        *new_socket = accept(server_info.server_socket, (struct sockaddr *)&server_info.client_addr, &server_info.client_len);
+        if (*new_socket == -1) {
+            LogError("Error accepting client connection\n");
             continue;
         }
 
@@ -198,7 +200,7 @@ void server_run(void)
         get_datetime(timestamp);
         LogInfo("[%s] REQUEST FROM %s:%d\n", timestamp, client_ip, ntohs(server_info.client_addr.sin_port));
 
-        thread_pool_add_work(thread_pool, handle_request_wrapper, NULL);
+        thread_pool_add_work(thread_pool, handle_request, new_socket);
     }
     thread_pool_wait(thread_pool);
     thread_pool_destroy(thread_pool);
