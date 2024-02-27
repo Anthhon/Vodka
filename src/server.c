@@ -69,6 +69,7 @@ void handle_404(const char *request, int *client_socket)
     }
 }
 
+// TODO: Implement caching to avoid reading same file multiple times
 void handle_request(void *client_socket)
 {
     char new_request[2048] = {0};

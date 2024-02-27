@@ -1,8 +1,6 @@
 # Vodka
 
-This is a (until now) simple and light-weight framework made in C. I don't recommend using it for 
-professional purposes but if you want to have some fun, move on and try it! The project goal is to be 
-as easy to use as Django with the pure C speed.
+This is a (until now) simple and light-weight framework made in C. I don't recommend using it for professional purposes but if you want to have some fun, move on and try it! The project goal is to be as easy to use as Django with the pure C speed.
 
 # Usage
 
@@ -13,21 +11,36 @@ git clone git@github.com:Anthhon/Vodka.git
 cd Vodka
 make build-linux -B # Doesn't have a proper Windows build command
 cd build
+
+# Change your 'src/config.c' file before running
 ./Vodka run
 ```
 
-# Roadmap
+# Features
 
-- [X] Create boilerplate server code
-- [X] Allow user to customize URL's
-- [X] Handle GET requests
-- [ ] Handle POST requests
-- [ ] Handle DELETE requests
-- [ ] Handle OPTIONS requests
-- [X] Handle HTML files
-- [X] Handle CSS files
-- [X] Handle JS files
-- [ ] Handle 404 errors
+- Handle all HTTP methods
+    - [X] GET requests
+    - [ ] POST requests
+    - [ ] PUT requests
+    - [ ] DELETE requests
+- Handle all file type
+    - [X] HTML files
+    - [X] CSS files
+    - [X] JS files
+    - [ ] CSV files
+    - [ ] Media files (MP4, PNG, WEBM...)
+- Caching
+    - [ ] Session management
+    - [ ] File reading cache
+    - [ ] Http caching
+- [X] Allow user to add custom URLs
+- [X] Handle 404 errors
+- [X] Thread-pool to handle multiple requests
+- [X] Logging system to track and record events for debugging
+- [ ] Requests rate limiting from single client
+- [ ] Dynamic `config.properties` file (confuse.h)
+- [ ] Suport for HTTPS (SSL/TLS)
+- [ ] Templating system
 
 # Contributing
 

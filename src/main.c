@@ -31,6 +31,7 @@ void print_banner(void)
     fprintf(stdout, ". ▀   ▀█▄▀▪▀▀▀▀▀• ·▀  ▀ ▀  ▀ \n");
 }
 
+// TODO: Implement forcing PORT change by parameters
 int main(int argc, char *argv[])
 {
     print_banner();
