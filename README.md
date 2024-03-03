@@ -1,6 +1,9 @@
 # Vodka
 
-This is a (until now) simple and light-weight framework made in C. I don't recommend using it for professional purposes but if you want to have some fun, move on and try it! The project goal is to be as easy to use as Django with the pure C speed.
+This is a (until now) simple and light-weight framework made in C. I don't 
+recommend using it for professional purposes but if you want to have some fun, 
+move on and try it! The project goal is to be as easy to use as Django with 
+the pure C speed.
 
 # Usage
 
@@ -32,21 +35,25 @@ cd build
 - Caching
     - [ ] Session management
     - [ ] File reading cache
-    - [ ] Http caching
+    - [X] Http caching (made by browser)
 - [X] Allow user to add custom URLs
 - [X] Handle 404 errors
 - [X] Thread-pool to handle multiple requests
 - [X] Logging system to track and record events for debugging
 - [ ] Requests rate limiting from single client
-- [ ] Dynamic `config.properties` file (confuse.h)
-- [ ] Suport for HTTPS (SSL/TLS)
+- Support for `config.properties` file type
+    - [X] Reading and parsing info from `.properties` file
+    - [ ] Updating server info dynamically
+- [ ] Support for HTTPS (SSL/TLS)
 - [ ] Templating system
 
 # Contributing
 
-Contributions to the project would be really appreciated. Talking about your wanted features or changes 
-in the [Issues](/issues) tab would be appreciated. Besides that, fork the project and do whatever you want!
+Contributions to the project would be really appreciated. Talking about your 
+wanted features or changes in the [Issues](/issues) tab would be appreciated. 
+Besides that, fork the project and do whatever you want!
 
 # License
 
-This project is licensed under the MIT License - see the [LICENSE](/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](/LICENSE) 
+file for details.

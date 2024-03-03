@@ -3,23 +3,17 @@
 
 #include <stdint.h>
 #include <arpa/inet.h>
+#include <stdbool.h>
+#include "tasks.h"
 
-#define THREAD_POOL_SIZE 4
-
-typedef struct {
-    int server_socket;
-    socklen_t client_len;
-    struct sockaddr_in server_addr;
-    struct sockaddr_in client_addr;
-    const uint16_t port;
-} ServerInfo;
+extern thread_pool_t *thread_pool_global_ptr;
 
 const char *get_header_by_type(const char *request);
 void handle_shutdown(int sig);
 void handle_404(const char *request, int *client_socket);
 void get_content(const char *request, int *client_socket, size_t url_id);
 void handle_request(void *client_socket);
-int server_init(void);
-void server_run(void);
+int server_init(uint16_t port);
+void server_run(uint16_t port);
 
 #endif // SERVER_H

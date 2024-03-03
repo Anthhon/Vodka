@@ -20,7 +20,6 @@
 #include "main.h"
 
 // Request responses
-static volatile bool server_running = true;
 static const char response_html[] = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %lu\r\n\r\n%s";
 static const char response_css[] = "HTTP/1.1 200 OK\r\nContent-Type: text/css\r\nContent-Length: %lu\r\n\r\n%s";
 static const char response_js[] = "HTTP/1.1 200 OK\r\nContent-Type: application/javascript\r\nContent-Length: %lu\r\n\r\n%s";
@@ -35,19 +34,27 @@ void get_datetime(char *dest)
     strftime(dest, sizeof(dest), TIMESTAMP_FORMAT, info);
 }
 
+// Maintaining a global pointer to the
+// thread pool so it can be used easily
+// by the shutdown method to take it down
 thread_pool_t *thread_pool_global_ptr = NULL;
+
 void handle_shutdown(int sig)
 {
     UNUSED(sig);
 
-    LogInfo("Received SIGINT. Shutting down...\n");
-    server_running = false;
+    LogInfo("Shutting down...\n");
+    server_info.server_running = false;
+    free(server_info.root_path);
+    server_info.root_path = NULL;
+    free(server_info.static_path);
+    server_info.static_path = NULL;
 
     if (close(server_info.server_socket) == -1) {
         LogExit("Could not close server properly.\n");
     }
 
-    LogInfo("Freed URL info...\n");
+    LogInfo("Cleaning URLs info...\n");
     free(urls_manager.urls);
     urls_manager.urls = NULL;
 
@@ -55,7 +62,7 @@ void handle_shutdown(int sig)
     thread_pool_wait(thread_pool_global_ptr);
     thread_pool_destroy(thread_pool_global_ptr);
 
-    LogInfo("Exiting...\n");
+    LogInfo("Server closed successfully!\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -124,7 +131,7 @@ const char *get_header_by_type(const char *request)
 void get_content(const char *request, int *client_socket, size_t url_id)
 {
     const char *CONTENT_PLACEHOLDER = get_header_by_type(request);
-    char *page_content = read_files(urls_manager.urls[url_id].file_path);
+    char *page_content = read_static_file(urls_manager.urls[url_id].file_path);
 
     if (page_content != NULL) {
         // 32 is used to make room for the '%lu' placeholder
@@ -143,7 +150,7 @@ void get_content(const char *request, int *client_socket, size_t url_id)
     }
 }
 
-int server_init(void)
+int server_init(uint16_t port)
 {
     server_info.server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_info.server_socket == -1) {
@@ -153,12 +160,12 @@ int server_init(void)
     memset((char *)&server_info.server_addr, 0, sizeof(server_info.server_addr));
     server_info.server_addr.sin_family = AF_INET;
     server_info.server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_info.server_addr.sin_port = htons(server_info.port);
+    server_info.server_addr.sin_port = htons(port);
 
     if (bind(server_info.server_socket, \
                 (struct sockaddr *)&server_info.server_addr, \
                 sizeof(server_info.server_addr)) == -1) {
-        LogExit("Could not bind socket to port \'%i\'.\n", server_info.port);
+        LogExit("Could not bind socket to port \'%i\'.\n", port);
     }
 
     if (listen(server_info.server_socket, 5) == -1) {
@@ -168,25 +175,29 @@ int server_init(void)
     return server_info.server_socket;
 }
 
-void server_run(void)
+void server_run(uint16_t port)
 {
     signal(SIGINT, handle_shutdown);
 
     LogInfo("Server starting...\n");
-    server_init();
+    server_init(port);
 
     LogInfo("Initializing server multi-threading...\n");
     thread_pool_t *thread_pool = thread_pool_create(num_threads);
     thread_pool_global_ptr = thread_pool;
 
+    LogInfo("Loading config file...\n");
+    config_update();
+    thread_pool_add_work(thread_pool, config_check, NULL);
+
     LogInfo("Setting urls...\n");
     urls_set(&urls_manager);
 
     LogInfo("Server is running!\n");
-    LogInfo("Visit http://localhost:%i in your web browser to see your server.\n", server_info.port);
+    LogInfo("Visit http://localhost:%i in your web browser to see your server.\n", port);
     LogInfo("Press <CTRL+C> to close server.\n\n");
 
-    while (server_running) {
+    while (server_info.server_running) {
         int *new_socket = malloc(sizeof(*new_socket));
         *new_socket = accept(server_info.server_socket, (struct sockaddr *)&server_info.client_addr, &server_info.client_len);
         if (*new_socket == -1) {

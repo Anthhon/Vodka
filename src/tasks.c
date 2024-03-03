@@ -5,8 +5,10 @@
 #include <stddef.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include "main.h"
 #include "tasks.h"
+
+//#define DEBUG
+#include "main.h"
 
 static thread_pool_work_t *thread_pool_work_create(thread_func_t func, void *arg)
 {
@@ -185,7 +187,7 @@ void thread_pool_wait(thread_pool_t *tm)
             pthread_cond_wait(&(tm->is_working), &(tm->work_mutex));
             _Debug({ LogDebug("Pool waiting for work"); });
         } else {
-            _Debug({ LogDebug("Pool found no work\n"); });
+            _Debug({ LogDebug("Pool found work.\n"); });
             break;
         }
     }

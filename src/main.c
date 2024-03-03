@@ -31,27 +31,37 @@ void print_banner(void)
     fprintf(stdout, ". ▀   ▀█▄▀▪▀▀▀▀▀• ·▀  ▀ ▀  ▀ \n");
 }
 
-// TODO: Implement forcing PORT change by parameters
 int main(int argc, char *argv[])
 {
     print_banner();
     if (argc == 1) print_usage(argv[0]);
     
     char *program = argv[0];
+    bool run_server = false;
 
+    uint16_t port_num = 8181;
     for (uint16_t i = 1; i < argc; ++i) {
         _Debug({
                 LogDebug("Checking argument: \"%s\"\n", argv[i]);
         });
         if (strncmp(FLAG_RUN, argv[i], FLAG_RUN_L) == 0) {
-            server_run();
-            break;
+            run_server = true;
         }
         if (strncmp(FLAG_HELP, argv[i], FLAG_HELP_L) == 0) {
             print_usage(program);
             break;
         }
+        if (strncmp(FLAG_PORT, argv[i], FLAG_PORT_L) == 0) {
+            if (i + 1 < argc) {
+                port_num = (uint16_t)atoi(argv[i + 1]);
+                i++;
+            } else {
+                LogExit("Error: No port number provided after -p flag.\n");
+            }
+        }
     }
+
+    if (run_server) server_run(port_num);
 
     return 0;
 }
