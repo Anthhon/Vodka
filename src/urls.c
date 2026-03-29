@@ -28,12 +28,12 @@ void urls_set(UrlsManager *urls_manager)
     });
 }
 
-size_t url_exist(const UrlsManager *urls_manager, const char *url)
+size_t url_exist(const UrlsManager *URLS_MANAGER, const char *url)
 {
-    if (urls_manager->urls == NULL) { return SIZE_MAX; }
+    if (URLS_MANAGER->urls == NULL) { return SIZE_MAX; }
 
-    for (size_t i = 0; i < urls_manager->capacity; ++i) {
-        if (strcmp(urls_manager->urls[i].url, url) == 0) {
+    for (size_t i = 0; i < URLS_MANAGER->capacity; ++i) {
+        if (strcmp(URLS_MANAGER->urls[i].url, url) == 0) {
             return i;
         }
     }

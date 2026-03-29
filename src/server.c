@@ -20,9 +20,9 @@
 #include "main.h"
 
 // Request responses
-static const char response_html[] = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %lu\r\n\r\n%s";
-static const char response_css[] = "HTTP/1.1 200 OK\r\nContent-Type: text/css\r\nContent-Length: %lu\r\n\r\n%s";
-static const char response_js[] = "HTTP/1.1 200 OK\r\nContent-Type: application/javascript\r\nContent-Length: %lu\r\n\r\n%s";
+static const char RESPONSE_HTML[] = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %lu\r\n\r\n%s";
+static const char RESPONSE_CSS[] = "HTTP/1.1 200 OK\r\nContent-Type: text/css\r\nContent-Length: %lu\r\n\r\n%s";
+static const char RESPONSE_JS[] = "HTTP/1.1 200 OK\r\nContent-Type: application/javascript\r\nContent-Length: %lu\r\n\r\n%s";
 
 void get_datetime(char *dest)
 {
@@ -116,13 +116,13 @@ const char *get_header_by_type(const char *request)
     switch (request_get_type(request)) {
         case HTML:
             _Debug({ LogDebug("Returning HTML content (thread %lu)\n", pthread_self()); });
-            return response_html;
+            return RESPONSE_HTML;
         case CSS:
             _Debug({ LogDebug("Returning CSS content (thread %lu)\n", pthread_self()); });
-            return response_css;
+            return RESPONSE_CSS;
         case JS:
             _Debug({ LogDebug("Returning JS content (thread %lu)\n", pthread_self()); });
-            return response_js;
+            return RESPONSE_JS;
         default:
             return NULL;
     }
@@ -131,22 +131,22 @@ const char *get_header_by_type(const char *request)
 void get_content(const char *request, int *client_socket, size_t url_id)
 {
     const char *CONTENT_PLACEHOLDER = get_header_by_type(request);
-    char *page_content = read_static_file(urls_manager.urls[url_id].file_path);
+    const char *PAGE_CONTENT = read_static_file(urls_manager.urls[url_id].file_path);
 
-    if (page_content != NULL) {
+    if (PAGE_CONTENT != NULL) {
         // 32 is used to make room for the '%lu' placeholder
-        char response[strlen(CONTENT_PLACEHOLDER) + strlen(page_content) + 32]; 
+        char response[strlen(CONTENT_PLACEHOLDER) + strlen(PAGE_CONTENT) + 32]; 
         memset(response, 0, sizeof(response));
 
-        if (snprintf(response, sizeof(response), CONTENT_PLACEHOLDER, strlen(page_content), page_content) < 0) {
+        if (snprintf(response, sizeof(response), CONTENT_PLACEHOLDER, strlen(PAGE_CONTENT), PAGE_CONTENT) < 0) {
             LogError("Could not write response content.\n");
-            free(page_content);
+            free((void*)PAGE_CONTENT);
             return;
         }
         if (send(*client_socket, response, strlen(response), 0) == -1) {
             LogError("Could not send response to client.\n");
         }
-        free(page_content);
+        free((void*)PAGE_CONTENT);
     }
 }
 
@@ -183,7 +183,7 @@ void server_run(uint16_t port)
     server_init(port);
 
     LogInfo("Initializing server multi-threading...\n");
-    thread_pool_t *thread_pool = thread_pool_create(num_threads);
+    thread_pool_t *thread_pool = thread_pool_create(NUM_THREADS);
     thread_pool_global_ptr = thread_pool;
 
     LogInfo("Loading config file...\n");

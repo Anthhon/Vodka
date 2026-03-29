@@ -10,7 +10,7 @@
 char *build_full_path_from_filename(const char *filepath)
 {
     size_t buffer_s = strlen(server_info.root_path) + strlen(server_info.static_path) + strlen(filepath) + 3;
-    char *buffer= calloc(buffer_s, sizeof(*buffer));
+    char *buffer = calloc(buffer_s, sizeof(*buffer));
     if (buffer == NULL) {
         LogError("Could not allocate memory to build \'%s\' file full path.\n", filepath);
         return NULL;
@@ -33,10 +33,10 @@ char *read_static_file(const char *filepath)
         return NULL;
     }
 
-    char *return_ptr = read_file(full_filepath);
+    char *file_content = read_file(full_filepath);
     free(full_filepath);
 
-    return return_ptr;
+    return file_content;
 }
 
 char *read_file(const char *filepath)

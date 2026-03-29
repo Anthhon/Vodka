@@ -26,7 +26,7 @@ extern char *ROOT_PATH;
 extern char *TEMPLATES_PATH;
 extern char *PAGE_PATH_404;
 extern char *PAGE_NAME_404;
-extern const size_t num_threads; // Number of threads project should use
+extern const size_t NUM_THREADS;
 
 void config_check(void *args);
 void config_update(void);

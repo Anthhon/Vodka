@@ -16,13 +16,15 @@ const char CONFIG_FILE_PATH[] = "./config.properties";
 
 // Check 'urls.c' to see more about 'urls_manager'
 UrlsManager urls_manager = {0};
-const size_t num_threads = 4; // Number of threads project should use
+const size_t NUM_THREADS = 4;
 
-char *TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"; // Timestamp to logs
+// NOTE: These are mutable variables, not constants, to allow runtime customization.
+// Users may override these values dynamically (e.g., from config files or custom code).
+char *TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S";   // Default log timestamp format
+char *PAGE_PATH_404 = "/404.html";              // Default 404 error page path
+char *PAGE_NAME_404 = "404";                    // Default 404 page identifier
 
-char *PAGE_PATH_404 = "/404.html"; // 404 path
-char *PAGE_NAME_404 = "404"; // 404 page name
-
+// Default 'server_info' state
 ServerInfo server_info = {
     .server_running = true,
     .server_socket = 0,
